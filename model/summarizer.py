@@ -79,6 +79,9 @@ def generate_summary(article_text: str) -> str:
     # Step 3: Join all partial summaries together
     combined_summary = " ".join(partial_summaries)
 
+    # Return the final summary text
+    return combined_summary
+
 
 #OPTIONAL:
 if __name__ == "__main__":      # Test block	Only for testing outside Streamlit
