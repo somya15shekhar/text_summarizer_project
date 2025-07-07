@@ -10,7 +10,6 @@ nltk.download('punkt')
 
 # Transformers pipeline
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
 def chunk_text(text: str, max_words: int =600) -> list:
     """
@@ -83,8 +82,13 @@ def generate_summary(article_text: str) -> str:
     return combined_summary
 
 
+'''git add model/summarizer.py
+git commit -m "Add summarizer.py file"
+git push origin main
+'''
+
 #OPTIONAL:
 if __name__ == "__main__":      # Test block	Only for testing outside Streamlit
     sample_text = """Paste or load a sample article here..."""
-    print("Generated Summary:\n", generate_summary(sample_text))
+    print("Generated Summary:\n", generate_summary(sample_text)) 
 

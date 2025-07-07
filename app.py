@@ -1,10 +1,15 @@
 import streamlit as st
 from model.summarizer import generate_summary
+import pandas as pd
 
+# Page config
 st.set_page_config(page_title="NLP Summarizer", layout="centered")
 st.title("🧠 Text Summarizer")
-st.markdown("Paste a long article below, and get a concise summary using a transformer model.")
+st.markdown("Paste a long article below, or upload a dataset to generate summaries using a transformer model.")
 
+# ---------------------------
+# 📌 Manual Text Input Summary
+# ---------------------------
 article_text = st.text_area("📝 Paste your article here", height=300, placeholder="Paste or type your article...")
 
 if st.button("📄 Generate Summary"):
@@ -15,4 +20,40 @@ if st.button("📄 Generate Summary"):
             summary = generate_summary(article_text)
         st.success("✅ Summary:")
         st.write(summary)
+
+# ---------------------------
+# 📁 CSV Upload & Bulk Summary
+# ---------------------------
+uploaded_file = st.file_uploader("📂 Upload CSV file (CNN/DailyMail format)", type=["csv"])
+
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    st.write("✅ Preview of uploaded data:")
+    st.dataframe(df.head())
+
+    column_to_summarize = st.selectbox("🧠 Select the column containing articles:", df.columns)
+
+    # Optional slider to limit number of articles
+    num_rows = st.slider("🔢 Number of articles to summarize", 1, len(df), 10)
+    df = df.head(num_rows)
+
+    if st.button("📝 Generate Summaries for Selected Rows"):
+        st.warning("⏳ This may take a few minutes...")
+        summaries = []
+        for i, text in enumerate(df[column_to_summarize]):
+            st.write(f"📍 Processing article {i+1} of {len(df)}...")
+            summary = generate_summary(str(text))
+            summaries.append(summary)
+
+        df['summary'] = summaries
+        st.success("✅ Summarization completed!")
+        st.dataframe(df[['summary']].head())
+
+        # Download button
+        csv = df.to_csv(index=False).encode('utf-8')
+        st.download_button("📥 Download CSV with Summaries", data=csv,
+                           file_name="summarized_articles.csv", mime='text/csv')
+
+
+
 #clean_env\Scripts\activate for terminal
