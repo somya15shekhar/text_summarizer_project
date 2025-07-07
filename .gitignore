@@ -1,0 +1,12 @@
+# Virtual environments
+clean_env/
+venv/
+.env/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Other
+.DS_Store
+.streamlit/
