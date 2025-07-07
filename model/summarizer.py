@@ -10,6 +10,7 @@ nltk.download('punkt')
 
 # Transformers pipeline
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
 def chunk_text(text: str, max_words: int =600) -> list:
     """
@@ -77,9 +78,14 @@ def generate_summary(article_text: str) -> str:
 
     # Step 3: Join all partial summaries together
     combined_summary = " ".join(partial_summaries)
+    
+    try:
+        corrected_summary = corrector(combined_summary)[0]['generated_text']
+    except Exception as e:
+        print(f"Correction error: {e}")
+        corrected_summary = combined_summary
 
-    # Return the final summary text
-    return combined_summary
+    return corrected_summary # Return the final summary text
 
 
 '''git add model/summarizer.py
