@@ -9,14 +9,7 @@ nltk.download('punkt_tab')
 nltk.download('punkt')
 
 # Transformers pipeline
-import os
-token = os.getenv("HUGGINGFACE_TOKEN")
-
-summarizer = pipeline(
-    "summarization",
-    model="facebook/bart-large-cnn",
-    use_auth_token=token
-)
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
