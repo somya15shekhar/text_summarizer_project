@@ -1,0 +1,5 @@
+streamlit
+transformers
+nltk
+pandas
+torch
