@@ -9,7 +9,7 @@ nltk.download('punkt_tab')
 nltk.download('punkt')
 
 # Transformers pipeline
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="t5-small")
 
 corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
