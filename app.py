@@ -12,12 +12,14 @@ st.markdown("Paste a long article below, or upload a dataset to generate summari
 # ---------------------------
 article_text = st.text_area("📝 Paste your article here", height=300, placeholder="Paste or type your article...")
 
+max_len = st.slider("✂️ Desired summary length (max tokens)", min_value=50, max_value=512, value=150, step=10)
+
 if st.button("📄 Generate Summary"):
     if not article_text.strip():
         st.warning("Please paste some text first.")
     else:
         with st.spinner("Summarizing..."):
-            summary = generate_summary(article_text)
+            summary = generate_summary(article_text , max_length = max_len)
         st.success("✅ Summary:")
         st.write(summary)
 
@@ -37,12 +39,14 @@ if uploaded_file:
     num_rows = st.slider("🔢 Number of articles to summarize", 1, len(df), 10)
     df = df.head(num_rows)
 
+    max_len = st.slider("✂️ Desired summary length (max tokens)", min_value=50, max_value=512, value=150, step=10)
+
     if st.button("📝 Generate Summaries for Selected Rows"):
         st.warning("⏳ This may take a few minutes...")
         summaries = []
         for i, text in enumerate(df[column_to_summarize]):
             st.write(f"📍 Processing article {i+1} of {len(df)}...")
-            summary = generate_summary(str(text))
+            summary = generate_summary(str(text), max_length= max_len)
             summaries.append(summary)
 
         df['summary'] = summaries
