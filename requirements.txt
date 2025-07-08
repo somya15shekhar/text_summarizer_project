@@ -3,3 +3,4 @@ transformers
 nltk
 pandas
 torch
+sentencepiece
