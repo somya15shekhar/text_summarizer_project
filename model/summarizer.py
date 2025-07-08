@@ -65,11 +65,9 @@ def generate_summary(article_text: str) -> str:
     for chunk in chunks:
         try:
             # Summarize this chunk with max/min length settings
-            summary = summarizer(
-                chunk,
-                max_length = 250,
-                min_length = 60,
-                do_sample =False)
+            summary = summarizer( chunk, max_new_tokens=150,  # or 100 based on how concise you want it
+                                 do_sample=False)
+
             
             partial_summaries.append(summary[0]['summary_text'])
 
