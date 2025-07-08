@@ -9,18 +9,18 @@ nltk.download('punkt_tab')
 nltk.download('punkt')
 
 # Transformers pipeline
-summarizer = pipeline("summarization", model="t5-small")
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
 
 corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
-def chunk_text(text: str, max_words: int =600) -> list:
+def chunk_text(text: str, max_words: int = 350) -> list:
     """
     Splits text into chunks with approximately max_words words per chunk.
     Returns a list of text chunks.
     """
     sentences = sent_tokenize(text)  # Split the article into sentences
     chunks = []                      # Stores final text chunks
-    current_chunk = ""              # Temp string to hold one chunk
+    current_chunk = ""              # Temp string to hold one chunks
     word_count = 0                  # Count words in current chunk
 
     for sentence in sentences:
@@ -65,7 +65,8 @@ def generate_summary(article_text: str) -> str:
     for chunk in chunks:
         try:
             # Summarize this chunk with max/min length settings
-            summary = summarizer( chunk, max_new_tokens=150,  # or 100 based on how concise you want it
+            summary = summarizer( chunk, 
+                                 max_new_tokens=150,  # or 100 based on how concise you want it
                                  do_sample=False)
 
             
