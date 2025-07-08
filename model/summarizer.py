@@ -1,8 +1,5 @@
-# You now have a clean, reusable summarizer module that
-# Works for any article string
-# Summarizes and optionally corrects grammar
-# Can be called from anywhere: notebook, Streamlit, etc.
-
+import streamlit as st
+import os
 from transformers import pipeline
 from nltk.tokenize import sent_tokenize, word_tokenize
 import nltk
@@ -10,9 +7,21 @@ import nltk
 nltk.download('punkt_tab')
 nltk.download('punkt')
 
-# Transformers pipeline
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
+# ✅ Access secure token
+os.environ["HF_TOKEN"] = st.secrets["HF_TOKEN"]
+
+summarizer = pipeline(
+    "summarization",
+    model="facebook/bart-large-cnn",
+    use_auth_token=os.environ["HF_TOKEN"]
+)
+
+corrector = pipeline(
+    "text2text-generation",
+    model="prithivida/grammar_error_correcter_v1",
+    use_auth_token=os.environ["HF_TOKEN"]
+)
+
 
 def chunk_text(text: str, max_words: int = 350) -> list:
     """
