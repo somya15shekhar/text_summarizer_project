@@ -66,14 +66,18 @@ def generate_summary(article_text: str, max_length: int = 256) -> str:
     for chunk in chunks:
         try:
             # Summarize this chunk with max/min length settings
+            input_length = len(chunk.split())
+
+            safe_max_len = min(max_length, input_length - 5) if input_length > 50 else 30
+
             summary = summarizer(
                 chunk,
-                max_length = max_length,       # Give it max room
+                max_length=safe_max_len,
+                min_length=20,
                 do_sample=False,
-                min_length = 40,
-                return_full_text=True,
-                early_stopping = False
-            )
+                early_stopping=True,
+                return_full_text=True)
+
             
             partial_summaries.append(summary[0]['summary_text'])
 
