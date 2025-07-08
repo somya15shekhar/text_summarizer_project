@@ -65,11 +65,13 @@ def generate_summary(article_text: str) -> str:
     for chunk in chunks:
         try:
             # Summarize this chunk with max/min length settings
-            summary = summarizer( chunk, 
-                                 max_new_tokens= 200,  # or 100 based on how concise you want it
-                                 do_sample=False,
-                                 early_stopping=False)  # Let model finish its sentence
-
+            summary = summarizer(
+                chunk,
+                max_new_tokens=256,       # Give it max room
+                do_sample=False,
+                early_stopping=False,
+                return_full_text=True
+            )
             
             partial_summaries.append(summary[0]['summary_text'])
 
@@ -81,12 +83,25 @@ def generate_summary(article_text: str) -> str:
     combined_summary = " ".join(partial_summaries)
     
     try:
-        corrected_summary = corrector(combined_summary)[0]['generated_text']
+        final_summary = summarizer(
+            combined_summary,
+            max_new_tokens=400,       # Controls final length
+            do_sample=False,
+            early_stopping=False,
+            return_full_text=True
+        )[0]['summary_text']
+    except Exception as e:
+        print(f"Final summarization error: {e}")
+        final_summary = combined_summary
+
+
+    try:
+        corrected_summary = corrector(final_summary)[0]['generated_text']
     except Exception as e:
         print(f"Correction error: {e}")
-        corrected_summary = combined_summary
+        corrected_summary = final_summary
 
-    return corrected_summary # Return the final summary text
+    return final_summary # Return the final summary text
 
 
 '''git add model/summarizer.py
