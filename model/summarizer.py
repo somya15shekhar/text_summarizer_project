@@ -44,7 +44,8 @@ def chunk_text(text: str, max_words: int = 350) -> list:
     return chunks  # Return list of chunked text strings
 
 
-def generate_summary(article_text: str) -> str:
+def generate_summary(article_text: str, max_length: int = 256) -> str:
+                                      #function can now accept a max summary length from outside (like your Streamlit slider). If none is passed, it defaults to 150.
 
     """
     Main function: generates a high-quality summary from a long article.
@@ -67,10 +68,11 @@ def generate_summary(article_text: str) -> str:
             # Summarize this chunk with max/min length settings
             summary = summarizer(
                 chunk,
-                max_new_tokens=256,       # Give it max room
+                max_length = max_length,       # Give it max room
                 do_sample=False,
-                early_stopping=False,
-                return_full_text=True
+                min_length = 40,
+                return_full_text=True,
+                early_stopping = False
             )
             
             partial_summaries.append(summary[0]['summary_text'])
@@ -84,12 +86,13 @@ def generate_summary(article_text: str) -> str:
     
     try:
         final_summary = summarizer(
-            combined_summary,
-            max_new_tokens=400,       # Controls final length
-            do_sample=False,
-            early_stopping=False,
-            return_full_text=True
-        )[0]['summary_text']
+        combined_summary,
+        max_length=min(512, int(max_length * 1.5)),  # final summary can be a bit longer than chunk summaries
+        min_length=60,
+        do_sample=False,
+        early_stopping=False,
+        return_full_text=True)[0]['summary_text']
+
     except Exception as e:
         print(f"Final summarization error: {e}")
         final_summary = combined_summary
@@ -101,7 +104,7 @@ def generate_summary(article_text: str) -> str:
         print(f"Correction error: {e}")
         corrected_summary = final_summary
 
-    return final_summary # Return the final summary text
+    return corrected_summary # Return the final corrected summary text
 
 
 '''git add model/summarizer.py
