@@ -1,16 +1,17 @@
-#You now have a clean, reusable summarizer module that Works for any article string Summarizes and 
-# optionally corrects grammar Can be called from anywhere: notebook, Streamlit, et
-
+# You now have a clean, reusable summarizer module that
+# Works for any article string
+# Summarizes and optionally corrects grammar
+# Can be called from anywhere: notebook, Streamlit, etc.
 
 from transformers import pipeline
 from nltk.tokenize import sent_tokenize, word_tokenize
 import nltk
+
 nltk.download('punkt_tab')
 nltk.download('punkt')
 
 # Transformers pipeline
 summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
-
 corrector = pipeline("text2text-generation", model="prithivida/grammar_error_correcter_v1")
 
 def chunk_text(text: str, max_words: int = 350) -> list:
@@ -20,7 +21,7 @@ def chunk_text(text: str, max_words: int = 350) -> list:
     """
     sentences = sent_tokenize(text)  # Split the article into sentences
     chunks = []                      # Stores final text chunks
-    current_chunk = ""              # Temp string to hold one chunks
+    current_chunk = ""              # Temp string to hold one chunk
     word_count = 0                  # Count words in current chunk
 
     for sentence in sentences:
@@ -30,9 +31,8 @@ def chunk_text(text: str, max_words: int = 350) -> list:
         if word_count + words_in_sentence <= max_words:
             current_chunk += " " + sentence
             word_count += words_in_sentence
-
         else:
-        # Chunk full → push to list and start a new one
+            # Chunk full → push to list and start a new one
             chunks.append(current_chunk.strip())
             current_chunk = sentence
             word_count = words_in_sentence
@@ -43,10 +43,7 @@ def chunk_text(text: str, max_words: int = 350) -> list:
 
     return chunks  # Return list of chunked text strings
 
-
 def generate_summary(article_text: str, max_length: int = 256) -> str:
-                                      #function can now accept a max summary length from outside (like your Streamlit slider). If none is passed, it defaults to 150.
-
     """
     Main function: generates a high-quality summary from a long article.
     Steps:
@@ -57,67 +54,46 @@ def generate_summary(article_text: str, max_length: int = 256) -> str:
     5. Apply grammar correction (optional).
     """
 
-     # Step 1: Split article into chunks
+    # Step 1: Split article into chunks
     chunks = chunk_text(article_text)
 
     # Step 2: Summarize each chunk individually
-
     partial_summaries = []
     for chunk in chunks:
         try:
-            # Summarize this chunk with max/min length settings
-            input_length = len(chunk.split())
+            input_words = len(chunk.split())
+            
+            # Skip chunks that are too small
+            if input_words < 30:
+                print(f"⚠️ Skipping short chunk with {input_words} words")
+                continue
 
-            safe_max_len = min(max_length, input_length - 5) if input_length > 50 else 30
+            # Calculate safe max_length
+            dynamic_max_len = min(max_length, max(50, input_words - 10))
 
             summary = summarizer(
                 chunk,
-                max_length=safe_max_len,
-                min_length=20,
+                max_length=dynamic_max_len,
+                min_length=30,
                 do_sample=False,
                 early_stopping=True,
-                return_full_text=True)
+                return_full_text=True
+            )
 
-            
             partial_summaries.append(summary[0]['summary_text'])
 
         except Exception as e:
+            print(f"❌ Chunk error: {e}")
             partial_summaries.append("[Error summarizing chunk]")
-            print(f"chunk error: {e}")
 
-    # Step 3: Join all partial summaries together
-    combined_summary = " ".join(partial_summaries)
-    
-    try:
-        final_summary = summarizer(
-        combined_summary,
-        max_length=min(512, int(max_length * 1.5)),  # final summary can be a bit longer than chunk summaries
-        min_length=60,
-        do_sample=False,
-        early_stopping=False,
-        return_full_text=True)[0]['summary_text']
-
-    except Exception as e:
-        print(f"Final summarization error: {e}")
-        final_summary = combined_summary
+    # Step 3 (Optional): Join and return combined summary
+    final_summary = " ".join(partial_summaries)
+    return final_summary
 
 
-    try:
-        corrected_summary = corrector(final_summary)[0]['generated_text']
-    except Exception as e:
-        print(f"Correction error: {e}")
-        corrected_summary = final_summary
-
-    return corrected_summary # Return the final corrected summary text
-
-
-'''git add model/summarizer.py
-git commit -m "Add summarizer.py file"
-git push origin main
-'''
-
-#OPTIONAL:
-if __name__ == "__main__":      # Test block	Only for testing outside Streamlit
+# OPTIONAL test block
+if __name__ == "__main__":      
     sample_text = """Paste or load a sample article here..."""
-    print("Generated Summary:\n", generate_summary(sample_text)) 
+    print("Generated Summary:\n", generate_summary(sample_text))
+
 
