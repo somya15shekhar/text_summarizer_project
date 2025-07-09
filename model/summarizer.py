@@ -47,7 +47,15 @@ def generate_summary(article_text: str) -> str:
             if len(chunk.split()) < 30:
                 continue  # skip too-short chunks
 
-            summary = summarizer(chunk)[0]['summary_text']
+            input_len = len(chunk.split())
+            max_len = max(50, input_len // 2)  # Ensure at least 50 tokens
+            
+            summary = summarizer(
+                chunk,
+                min_length=40,
+                max_length=max_len,
+                do_sample=False)[0]['summary_text']
+
             partial_summaries.append(summary)
         except Exception as e:
             print(f"Chunk error: {e}")
