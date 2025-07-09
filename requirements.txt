@@ -3,5 +3,7 @@ transformers
 nltk
 pandas
 torch
-pip --upgrade pip setuptools wheel
+pip>=23.0
+setuptools>=65.0
+wheel>=0.40
 sentencepiece
