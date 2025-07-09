@@ -54,7 +54,8 @@ def generate_summary(article_text: str) -> str:
                 chunk,
                 min_length=40,
                 max_length=max_len,
-                do_sample=False)[0]['summary_text']
+                do_sample= True,  temperature=0.7,
+                repetition_penalty=2.0,)[0]['summary_text'] #do_sample=True + temperature=0.7: Encourages paraphrasing., Repetition_penalty: Reduces copied phrases.
 
             partial_summaries.append(summary)
         except Exception as e:

@@ -1,0 +1,35 @@
+# %%
+import numpy as np 
+import pandas as pd
+
+# %% [markdown]
+# ## Data Exploration
+
+# %%
+data = pd.read_csv(r"C:\Users\Somya Shekhar\Desktop\text_summarizer_project\data\BBC News Train.csv")
+df = pd.DataFrame(data)
+df.head() 
+
+# %% [markdown]
+# ## Text Preprocessing
+
+# %%
+df['Text'] =  [t.replace('\n', ' ').strip() for t in df['Text']] ## replace, strip whitespaces
+df['Text'].head()
+
+# %% [markdown]
+# ## CALL SUMMARIZER
+
+# %%
+from model.summarizer import generate_summary
+#BATCH PROCESSING:
+sample_df = df[['Text']] #Double brackets to keep as DataFrame
+sample_df = sample_df.head(5).copy()
+
+sample_df['summary'] = sample_df['Text'].apply(generate_summary)
+
+
+# %%
+sample_df[['Text', 'summary']]
+
+
