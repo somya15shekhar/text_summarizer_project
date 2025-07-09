@@ -5,7 +5,7 @@ import nltk
 nltk.download('punkt')
 
 # Load summarizer pipeline
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+summarizer = pipeline("summarization", model="facebook/bart-large-cnn") 
 
 def chunk_text(text: str, max_words: int = 350) -> list:
     """
@@ -48,7 +48,7 @@ def generate_summary(article_text: str) -> str:
                 continue  # skip too-short chunks
 
             input_len = len(chunk.split())
-            max_len = max(50, input_len // 2)  # Ensure at least 50 tokens
+            max_len = min(200, input_len // 2)  # Ensure at least 50 tokens
             
             summary = summarizer(
                 chunk,
