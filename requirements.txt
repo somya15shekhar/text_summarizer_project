@@ -3,4 +3,5 @@ transformers
 nltk
 pandas
 torch
+pip --upgrade pip setuptools wheel
 sentencepiece
